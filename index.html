@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banka Yönetim Sistemi - Giriş</title>
+
+    <!-- ===== CSS: تصميم وتنسيق الصفحة ===== -->
+    <style>
+        /* تصفير الهوامش والقيم الافتراضية */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* إعدادات الصفحة العامة */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            max-width: 900px;
+            width: 100%;
+            display: flex;
+        }
+
+        /* القسم الأيسر */
+        .sol-panel {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 40px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .sol-panel h1 {
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+
+        .sol-panel p {
+            font-size: 16px;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+
+        /* القسم الأيمن */
+        .sag-panel {
+            padding: 60px 40px;
+            flex: 1;
+        }
+
+        .form-baslik {
+            margin-bottom: 30px;
+        }
+
+        .form-baslik h2 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .form-baslik p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* أزرار التبديل */
+        .sekme-butonlar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .sekme-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            color: #666;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .sekme-btn.aktif {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        .form-grup {
+            margin-bottom: 20px;
+        }
+
+        .form-grup label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-grup input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        .form-grup input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .giris-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .giris-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .admin-link {
+            text-align: center;
+            margin-top: 20px;
+            color: #667eea;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .admin-link:hover {
+            text-decoration: underline;
+        }
+
+        .form-panel {
+            display: none;
+        }
+
+        .form-panel.aktif {
+            display: block;
+        }
+
+        .mesaj {
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 14px;
+        }
+
+        .mesaj.basarili {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .mesaj.hata {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sol-panel {
+                padding: 40px 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- الهيكل الرئيسي -->
+    <div class="container">
+
+        <!-- القسم الأيسر -->
+        <div class="sol-panel">
+            <h1> 𝙼𝙴𝚁𝚅 𝙱𝙰𝙽𝙺𝙰𝚂𝙸</h1>
+            <p>Güven ve teknolojiyi bir araya getiren modern bankacılık platformu
+Hesabınızı oluşturun, para yatırın ve çekin, tüm işlemlerinizi kolayca ve güvenle yönetin</p>
+        </div>
+
+        <!-- القسم الأيمن -->
+        <div class="sag-panel">
+
+            <div class="form-baslik">
+                <h2>Hoş Geldiniz</h2>
+                <p>İşlemlerinize devam etmek için giriş yapın.
+                       Hesabınız yoksa kayıt olmanız gerekmektedir.</p>
+            </div>
+
+            <!-- صندوق الرسائل -->
+            <div id="mesajKutusu" class="mesaj"></div>
+               
+            <!-- أزرار التبديل -->
+            <div class="sekme-butonlar">
+                <button class="sekme-btn aktif" onclick="sekmeGoster('giris')">Giriş Yap</button>
+                <button class="sekme-btn" onclick="sekmeGoster('kayit')">Kayıt Ol</button>
+            </div>
+
+            <!-- فورم تسجيل الدخول -->
+            <div id="girisPanel" class="form-panel aktif">
+                <form id="girisForm" onsubmit="girisYap(event)">
+                    <div class="form-grup">
+                        <label>Kullanıcı Adı</label>
+                        <input type="text" id="girisKullanici" required placeholder="Kullanıcı adınızı girin">
+                    </div>
+                    <div class="form-grup">
+                        <label>Şifre</label>
+                        <input type="password" id="girisSifre" required placeholder="Şifrenizi girin">
+                    </div>
+                    <button type="submit" class="giris-btn">Giriş Yap</button>
+                </form>
+            </div>
+
+            <!-- فورم التسجيل -->
+            <div id="kayitPanel" class="form-panel">
+                <form id="kayitForm" onsubmit="kayitOl(event)">
+                    <div class="form-grup">
+                        <label>Ad Soyad</label>
+                        <input type="text" id="kayitAdSoyad" required placeholder="Adınızı ve soyadınızı girin">
+                    </div>
+                     <div class="form-grup">
+                        <label>E posta</label>
+                        <input type="email" id="kayitemail" required placeholder="e postanızı girin">
+                    </div>
+                    <div class="form-grup">
+                        <label>Kullanıcı Adı</label>
+                        <input type="text" id="kayitKullanici" required placeholder="Kullanıcı adı seçin">
+                    </div>
+                    <div class="form-grup">
+                        <label>Şifre</label>
+                        <input type="password" id="kayitSifre" required placeholder="Güçlü bir şifre oluşturun">
+                    </div>
+                    
+                    <div class="form-grup">
+                        <label>Başlangıç Bakiyesi (TL)</label>
+                        <input type="number" id="kayitBakiye" required placeholder="Minimum 100 TL" min="100">
+                    </div>
+                    <button type="submit" class="giris-btn">Hesap Oluştur</button>
+                </form>
+            </div>
+
+            <!-- دخول الأدمن -->
+            <div class="admin-link" onclick="adminSayfasinaGit()">
+                 Admin Girişi
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== تبديل التبويبات بين giriş و kayıt =====
+        function sekmeGoster(sekme) {
+            document.querySelectorAll('.sekme-btn').forEach(btn => btn.classList.remove('aktif'));
+            document.querySelectorAll('.form-panel').forEach(panel => panel.classList.remove('aktif'));
+            
+            if (sekme === 'giris') {
+                document.querySelectorAll('.sekme-btn')[0].classList.add('aktif');
+                document.getElementById('girisPanel').classList.add('aktif');
+            } else {
+                document.querySelectorAll('.sekme-btn')[1].classList.add('aktif');
+                document.getElementById('kayitPanel').classList.add('aktif');
+            }
+            mesajGoster('', '');
+        }
+
+        // ===== إظهار رسائل النجاح أو الخطأ =====
+        function mesajGoster(mesaj, tip) {
+            const mesajKutusu = document.getElementById('mesajKutusu');
+            if (mesaj) {
+                mesajKutusu.textContent = mesaj;
+                mesajKutusu.className = 'mesaj ' + tip;
+                mesajKutusu.style.display = 'block';
+            } else {
+                mesajKutusu.style.display = 'none';
+            }
+        }
+
+        // ===== تسجيل دخول المستخدم =====
+        function girisYap(event) {
+            event.preventDefault();
+            
+            const kullanici = document.getElementById('girisKullanici').value;
+            const sifre = document.getElementById('girisSifre').value;
+            
+            const kullanicilar = JSON.parse(localStorage.getItem('kullanicilar') || '[]');
+            const bulunanKullanici = kullanicilar.find(k => k.kullaniciAdi === kullanici && k.sifre === sifre);
+            
+            if (bulunanKullanici) {
+                localStorage.setItem('aktifKullanici', JSON.stringify(bulunanKullanici));
+                mesajGoster('Giriş başarılı! Yönlendiriliyorsunuz...', 'basarili');
+                setTimeout(() => window.location.href = 'hesap.html', 1000);
+            } else {
+                mesajGoster('Kullanıcı adı veya şifre hatalı!', 'hata');
+            }
+        }
+
+        // ===== إنشاء حساب جديد =====
+        function kayitOl(event) {
+            event.preventDefault();
+            
+            const adSoyad = document.getElementById('kayitAdSoyad').value;
+            const kullanici = document.getElementById('kayitKullanici').value;
+            const sifre = document.getElementById('kayitSifre').value;
+            const bakiye = parseFloat(document.getElementById('kayitBakiye').value);
+            const eposta = document.getElementById('kayitemail').value;
+
+            
+            // هوني لازم يكون 100
+            if (bakiye < 100) {
+                mesajGoster('Başlangıç bakiyesi minimum 100 TL olmalıdır!', 'hata');
+                return;
+            }
+            
+            const kullanicilar = JSON.parse(localStorage.getItem('kullanicilar') || '[]');
+            if (kullanicilar.some(k => k.kullaniciAdi === kullanici)) {
+                mesajGoster('Bu kullanıcı adı zaten kullanılıyor!', 'hata');
+                return;
+            }
+            
+            const yeniKullanici = {
+                id: Date.now(),
+                adSoyad: adSoyad,
+                kullaniciAdi: kullanici,
+                sifre: sifre,
+                bakiye: bakiye,
+                hesapNo: 'TR' + Math.floor(Math.random() * 10000000000),
+                olusturmaTarihi: new Date().toISOString(),
+                aktif: true,
+                islemler: [{
+                    tip: 'Hesap Açılışı',
+                    tutar: bakiye,
+                    tarih: new Date().toISOString(),
+                    aciklama: 'İlk para yatırma'
+                }]
+            };
+            
+            kullanicilar.push(yeniKullanici);
+            localStorage.setItem('kullanicilar', JSON.stringify(kullanicilar));
+            
+            mesajGoster('Hesabınız başarıyla oluşturuldu! Giriş yapabilirsiniz.', 'basarili');
+            setTimeout(() => {
+                sekmeGoster('giris');
+                document.getElementById('girisKullanici').value = kullanici;
+            }, 1500);
+        }
+
+        // ===== الانتقال لصفحة الأدمن =====
+        function adminSayfasinaGit() {
+            window.location.href = 'admin.html';
+        }
+
+        // ===== إنشاء حساب الأدمن لأول مرة =====
+        window.onload = function() {
+            const adminVar = localStorage.getItem('adminOlusturuldu');
+            if (!adminVar) {
+                const adminKullanici = {
+                    kullaniciAdi: 'admin',
+                    sifre: 'admin123'
+                };
+                localStorage.setItem('admin', JSON.stringify(adminKullanici));
+                localStorage.setItem('adminOlusturuldu', 'true');
+            }
+        };
+    </script>
+</body>
+</html>
