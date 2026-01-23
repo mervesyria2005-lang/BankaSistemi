@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hesabım - Banka Yönetim Sistemi</title>
+
+  <style>
+    /* هذا الجزء يعمل Reset لكل العناصر (إلغاء الهوامش والبادي وتفعيل box-sizing) */
+    /* Bu bölüm tüm elemanlar için reset yapar (margin/padding sıfırlar ve box-sizing uygular) */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    /* هذا الجزء يحدد شكل الصفحة العام: الخط والخلفية والارتفاع */
+    /* Bu bölüm sayfanın genel stilini belirler: font, arka plan, yükseklik */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f7fa;
+      min-height: 100vh;
+    }
+
+    /* هذا الجزء هو تخطيط الصفحة الأساسي: Sidebar + Main باستخدام flex */
+    /* Bu bölüm temel sayfa yerleşimini kurar: Sidebar + Main (flex) */
+    .app {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* هذا الجزء هو تصميم السايدبار (ثابت على اليسار + سكرول) */
+    /* Bu bölüm sidebar tasarımını yapar (solda sabit + kaydırma) */
+    .sidebar {
+      width: 280px;
+      background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      padding: 18px 14px;
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      overflow-y: auto;
+      border-right: 1px solid rgba(255,255,255,0.08);
+      transition: width 0.35s ease;
+    }
+
+    /* عنوان السايدبار: أيقونة/نص مع محاذاة جميلة */
+    /* Sidebar başlığı: ikon/metin hizalama ve görünüm */
+    .sb-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 16px;
+      margin-bottom: 16px;
+      opacity: 0.95;
+    }
+
+    /* اسم القسم داخل السايدبار (Menü) */
+    /* Sidebar içinde bölüm başlığı (Menü) */
+    .sb-section {
+      margin-top: 10px;
+      opacity: 0.9;
+      font-size: 13px;
+      padding: 8px 10px;
+    }
+
+    /* زر عنصر القائمة داخل السايدبار (شكل عام للأزرار) */
+    /* Sidebar menü öğesi butonu (genel buton stili) */
+    .sb-item {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      border: 0;
+      background: transparent;
+      color: #fff;
+      font-size: 14px;
+      text-align: left;
+      transition: 0.2s;
+    }
+
+    /* تأثير hover للأزرار */
+    /* Butonlar için hover efekti */
+    .sb-item:hover { background: rgba(255,255,255,0.08); }
+    .sb-item.active { background: rgba(255,255,255,0.12); }
+
+    /* خط فاصل داخل السايدبار */
+    /* Sidebar ayırıcı çizgi */
+    .sb-divider {
+      height: 1px;
+      background: rgba(255,255,255,0.08);
+      margin: 12px 0;
+    }
+
+    /* صندوق المستخدم أسفل السايدبار (اسم المستخدم + الحساب + خروج) */
+    /* Sidebar altındaki kullanıcı kutusu (ad + hesap + çıkış) */
+    .sb-user {
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      bottom: 14px;
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    /* سطر اسم المستخدم داخل صندوق المستخدم */
+    /* Kullanıcı kutusunda isim satırı */
+    .sb-user .name {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      font-size: 14px;
+      opacity: 0.95;
+    }
+
+    /* سطر رقم الحساب داخل صندوق المستخدم */
+    /* Kullanıcı kutusunda hesap numarası satırı */
+    .sb-user .mini {
+      font-size: 12px;
+      opacity: 0.75;
+    }
+
+    /* زر تسجيل الخروج داخل صندوق المستخدم */
+    /* Kullanıcı kutusunda çıkış butonu */
+    .sb-user .logout {
+      margin-top: 10px;
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      cursor: pointer;
+      font-weight: 700;
+      transition: 0.2s;
+    }
+
+    /* hover لزر الخروج */
+    /* Çıkış butonu hover */
+    .sb-user .logout:hover { background: rgba(255,255,255,0.14); }
+
+    /* هذا الجزء هو تصميم المحتوى الرئيسي (Main) مع ترك مساحة للسايدبار */
+    /* Bu bölüm ana içerik alanını (Main) sidebar boşluğuna göre ayarlar */
+    .main {
+      margin-left: 280px;
+      width: calc(100% - 280px);
+      min-height: 100vh;
+      transition: margin-left 0.35s ease, width 0.35s ease;
+    }
+
+    /* شريط علوي (Navbar) للواجهة */
+    /* Üst gezinme çubuğu (Navbar) */
+    .navbar {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      font-weight: bold;
+    }
+
+    /* عنوان داخل navbar */
+    /* Navbar içindeki başlık */
+    .navbar h1 { font-size: 24px; font-weight: bold; }
+
+    /* حاوية المحتوى (عرض ثابت + وسط الصفحة) */
+    /* İçerik kapsayıcı (max genişlik + ortalama) */
+    .container {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    /* شبكة الكروت العلوية (البطاقة/الكروت) */
+    /* Üst kartlar için grid düzeni */
+    .kart-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    /* تصميم الكرت العام (خلفية + ظل + حركة hover) */
+    /* Genel kart tasarımı (arka plan + gölge + hover animasyon) */
+    .kart {
+      font-weight: bold;
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      transition: transform 0.3s;
+      border: 1px solid rgba(97, 121, 228, 0.25);
+    }
+
+    /* حركة بسيطة عند المرور على الكرت */
+    /* Kart üzerine gelince küçük hareket */
+    .kart:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    /* كرت الرصيد (مميز لكنه بنفس اللون هنا) */
+    /* Bakiye kartı (özel kart, burada aynı renk) */
+    .bakiye-kart {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    /* عنوان الكرت + قيمة الكرت + سطر إضافي */
+    /* Kart başlığı + kart değeri + alt metin */
+    .kart-baslik { font-size: 14px; opacity: 0.8; margin-bottom: 10px; }
+    .kart-deger { font-size: 36px; font-weight: bold; margin-bottom: 5px; }
+    .kart-alt { font-size: 12px; opacity: 0.7; }
+
+    /* لوحة العمليات (إيداع/سحب/تحويل) */
+    /* İşlemler paneli (yatır/çek/transfer) */
+    .islem-panel {
+      background: white;
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+    }
+
+    /* عنوان داخل لوحة العمليات */
+    /* İşlem paneli başlığı */
+    .islem-baslik {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    /* أزرار اختيار نوع العملية */
+    /* İşlem seçme butonları */
+    .islem-butonlar {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+
+    /* تصميم زر العملية */
+    /* İşlem butonu tasarımı */
+    .islem-btn {
+      flex: 1;
+      min-width: 150px;
+      padding: 15px;
+      border: 2px solid #e0e0e0;
+      background: white;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: all 0.3s;
+      color: #333;
+    }
+
+    /* hover للزر */
+    /* Buton hover */
+    .islem-btn:hover { border-color: #667eea; color: #667eea; }
+
+    /* الزر النشط (المختار) */
+    /* Aktif (seçili) buton */
+    .islem-btn.aktif {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-color: transparent;
+    }
+
+    /* إخفاء/إظهار نماذج العمليات حسب الاختيار */
+    /* Seçime göre işlem formlarını gizle/göster */
+    .islem-form { display: none; }
+    .islem-form.aktif { display: block; }
+
+    /* مجموعة حقول داخل الفورم */
+    /* Form alan grubu */
+    .form-grup { margin-bottom: 20px; }
+
+    /* تسمية الحقل */
+    /* Alan etiketi */
+    .form-grup label {
+      display: block;
+      color: #333;
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    /* شكل المدخلات والتكست ايريا */
+    /* Input ve textarea stili */
+    .form-grup input, .form-grup textarea {
+      width: 100%;
+      padding: 14px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 15px;
+      transition: all 0.3s;
+    }
+
+    /* شكل الحقل عند التركيز (focus) */
+    /* Focus durumunda alan stili */
+    .form-grup input:focus, .form-grup textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    /* زر التأكيد العام */
+    /* Genel onay butonu */
+    .onay-btn {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    /* hover لزر التأكيد */
+    /* Onay butonu hover */
+    .onay-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    /* زر خطير (إغلاق الحساب) */
+    /* Tehlikeli buton (hesap kapatma) */
+    .tehlikeli-btn { background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); }
+
+    /* جدول تاريخ العمليات (صندوق أبيض) */
+    /* İşlem geçmişi tablosu alanı (beyaz kutu) */
+    .gecmis-tablo {
+      background: white;
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+    }
+
+    /* تنسيق الجدول */
+    /* Tablo stili */
+    .tablo { width: 100%; border-collapse: collapse; }
+
+    /* رؤوس الجدول */
+    /* Tablo başlık hücreleri */
+    .tablo th {
+      background: #f8f9fa;
+      padding: 15px;
+      text-align: left;
+      font-weight: 600;
+      color: #333;
+      border-bottom: 2px solid #e0e0e0;
+    }
+
+    /* خلايا الجدول */
+    /* Tablo veri hücreleri */
+    .tablo td {
+      padding: 15px;
+      border-bottom: 1px solid #f0f0f0;
+      color: #666;
+    }
+
+    /* تلوين صف عند المرور */
+    /* Satır hover rengi */
+    .tablo tr:hover { background: #f8f9fa; }
+
+    /* ألوان دلالية للإيداع/السحب */
+    /* Yatırma/çekme için renkler */
+    .yatirma { color: #043d29; font-weight: 700; }
+    .cekme { color: #520808; font-weight: 700; }
+
+    /* صندوق رسائل النجاح/الخطأ */
+    /* Başarı/hata mesaj kutusu */
+    .mesaj {
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      display: none;
+      font-size: 14px;
+    }
+
+    /* رسالة نجاح */
+    /* Başarı mesajı */
+    .mesaj.basarili {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    /* رسالة خطأ */
+    /* Hata mesajı */
+    .mesaj.hata {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    /* مودال (نافذة تأكيد) لإغلاق الحساب */
+    /* Hesap kapatma için modal (onay penceresi) */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+    }
+
+    /* تفعيل المودال */
+    /* Modal aktif hale getirme */
+    .modal.aktif { display: flex; }
+
+    /* محتوى المودال */
+    /* Modal içerik */
+    .modal-icerik {
+      background: white;
+      border-radius: 16px;
+      padding: 30px;
+      max-width: 400px;
+      width: 90%;
+    }
+
+    /* عنوان ونص المودال */
+    /* Modal başlık ve metin */
+    .modal-baslik { font-size: 20px; font-weight: 600; margin-bottom: 15px; color: #333; }
+    .modal-metin { color: #666; margin-bottom: 25px; line-height: 1.6; }
+
+    /* أزرار المودال */
+    /* Modal butonlar */
+    .modal-butonlar { display: flex; gap: 10px; }
+
+    /* زر داخل المودال */
+    /* Modal içi buton */
+    .modal-btn {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    /* زر إلغاء / زر تأكيد */
+    /* İptal / onay butonları */
+    .modal-btn.iptal { background: #e0e0e0; color: #333; }
+    .modal-btn.onayla { background: #ef4444; color: white; }
+
+    /* هذا الجزء للتجاوب مع الشاشات (Responsive) */
+    /* Bu bölüm responsive (farklı ekran boyutları) ayarları */
+    @media (max-width: 900px) {
+      .sidebar { width: 240px; }
+      .main { margin-left: 240px; width: calc(100% - 240px); }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar { position: static; width: 100%; height: auto; }
+      .sb-user { position: static; margin-top: 12px; }
+      .main { margin-left: 0; width: 100%; }
+      .navbar { padding: 15px 20px; }
+      .kart-grid { grid-template-columns: 1fr; }
+      .islem-butonlar { flex-direction: column; }
+      .tablo { font-size: 14px; }
+    }
+
+    /* هذا الجزء مسؤول عن فتح/إغلاق السايدبار (تصغيره) */
+    /* Bu bölüm sidebar'ı aç/kapat (daraltma) işlemi için */
+    .sidebar.closed{
+      width: 70px;
+      padding: 18px 10px;
+      overflow: hidden;
+    }
+
+    /* عند الإغلاق: إخفاء العناصر لتظهر أيقونة القائمة فقط */
+    /* Kapalıyken: sadece menü ikonunu göstermek için elemanları gizler */
+    .sidebar.closed .sb-title,
+    .sidebar.closed .sb-section,
+    .sidebar.closed .sb-divider,
+    .sidebar.closed .sb-user,
+    .sidebar.closed .sb-item:not(.toggle-btn){
+      display: none !important;
+    }
+
+    /* زر القائمة (☰) عند التصغير */
+    /* Daraltmada görünen menü butonu (☰) */
+    .sidebar .toggle-btn{
+      width: 48px;
+      height: 48px;
+      justify-content: center;
+      border-radius: 12px;
+      margin: 6px auto 0 auto;
+      display: flex;
+      align-items: center;
+      font-size: 20px;
+    }
+
+    /* عند إغلاق السايدبار: تقليل هامش الـ Main */
+    /* Sidebar kapalıyken: Main alanını sola kaydırma */
+    .main.closed{
+      margin-left: 70px;
+      width: calc(100% - 70px);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+
+    <!-- هذا الجزء هو السايدبار (القائمة الجانبية) -->
+    <!-- Bu bölüm sidebar (yan menü) -->
+    <aside class="sidebar closed">
+      <div class="sb-title"> Banka Yönetim Sistemi</div>
+
+      <!-- زر فتح/إغلاق السايدبار -->
+      <!-- Sidebar aç/kapat butonu -->
+      <button class="sb-item toggle-btn" onclick="toggleSidebar()" title="Menü" type="button">
+        ☰</button>
+
+      
+
+      <!-- زر الانتقال لأعلى الصفحة -->
+      <!-- Sayfanın en üstüne git butonu -->
+      <button class="sb-item active" type="button" onclick="scrollToTop()">
+        Hesabım
+      </button>
+
+      <!-- زر فتح صفحة الإعدادات -->
+      <!-- Ayarlar sayfasını aç butonu -->
+      <button class="sb-item" type="button" onclick="openSettingsFromSidebar()">
+        Ayarlar
+      </button>
+
+      <div class="sb-divider"></div>
+
+      <!-- صندوق معلومات المستخدم في أسفل السايدبار -->
+      <!-- Sidebar altında kullanıcı bilgi kutusu -->
+      <div class="sb-user">
+        <div class="name">
+          👤 <span id="kullaniciAdiSidebar">Kullanıcı</span>
+        </div>
+        <div class="mini">Hesap No: <span id="hesapNoSidebar">—</span></div>
+        <button class="logout" type="button" onclick="cikisYap()"> Çıkış Yap!</button>
+      </div>
+    </aside>
+
+    <!-- هذا الجزء هو المحتوى الرئيسي (Main) -->
+    <!-- Bu bölüm ana içerik (Main) -->
+    <main class="main closed">
+      <div class="navbar">
+        <h1>Hesablarım</h1>
+        <div style="opacity:0.9;font-weight:700;">
+          Hoş Geldininiz  <span id="kullaniciAdiTop">...</span>
+        </div>
+      </div>
+
+      <div class="container">
+        <!-- كروت الملخص (الرصيد / مجموع الإيداع / مجموع السحب) -->
+        <!-- Özet kartlar (bakiye / toplam yatırılan / toplam çekilen) -->
+        <div class="kart-grid">
+          <div class="kart bakiye-kart">
+            <div class="kart-baslik">Toplam Bakiye</div>
+            <div class="kart-deger" id="toplamBakiye">0 ₺</div>
+            <div class="kart-alt">Hesap No: <span id="hesapNo"></span></div>
+          </div>
+
+          <div class="kart">
+            <div class="kart-baslik">Toplam Yatırılan</div>
+            <div class="kart-deger yatirma" id="toplamYatirilan">0 ₺</div>
+            <div class="kart-alt">Tüm zamanlar</div>
+          </div>
+
+          <div class="kart">
+            <div class="kart-baslik">Toplam Çekilen</div>
+            <div class="kart-deger cekme" id="toplamCekilen">0 ₺</div>
+            <div class="kart-alt">Tüm zamanlar</div>
+          </div>
+        </div>
+
+        <!-- لوحة العمليات (اختيار إيداع/سحب/تحويل + فورم) -->
+        <!-- İşlem paneli (yatır/çek/transfer seçimi + form) -->
+        <div class="islem-panel">
+          <div class="islem-baslik">İşlemler</div>
+          <div id="mesajKutusu" class="mesaj"></div>
+
+          <div class="islem-butonlar">
+            <button class="islem-btn aktif" onclick="islemSec(event,'yatirma')">Para Yatır</button>
+            <button class="islem-btn" onclick="islemSec(event,'cekme')">Para Çek</button>
+            <button class="islem-btn" onclick="islemSec(event,'transfer')">Para Transferi</button>
+          </div>
+
+          <!-- نموذج الإيداع -->
+          <!-- Yatırma formu -->
+          <div id="yatirmaForm" class="islem-form aktif">
+            <form onsubmit="paraYatir(event)">
+              <div class="form-grup">
+                <label>Yatırılacak Tutar (TL)</label>
+                <input type="number" id="yatirmaTutar" required min="10" placeholder="Minimum 10 TL" />
+              </div>
+              <div class="form-grup">
+                <label>Açıklama </label>
+                <input type="text" id="yatirmaAciklama" placeholder="Örn: Maaş yatırması" />
+              </div>
+              <button type="submit" class="onay-btn">Para Yatır</button>
+            </form>
+          </div>
+
+          <!-- نموذج السحب -->
+          <!-- Çekme formu -->
+          <div id="cekmeForm" class="islem-form">
+            <form onsubmit="paraCek(event)">
+              <div class="form-grup">
+                <label>Çekilecek Tutar (TL)</label>
+                <input type="number" id="cekmeTutar" required min="10" placeholder="Minimum 10 TL" />
+              </div>
+              <div class="form-grup">
+                <label>Açıklama</label>
+                <input type="text" id="cekmeAciklama" placeholder="Örn: Market alışverişi" />
+              </div>
+              <button type="submit" class="onay-btn">Para Çek</button>
+            </form>
+          </div>
+
+          <!-- نموذج التحويل + اختيار مستفيد محفوظ -->
+          <!-- Transfer formu + kayıtlı alıcı seçimi -->
+          <div id="transferForm" class="islem-form">
+            <form onsubmit="paraTransferi(event)">
+
+              <div class="form-grup">
+                <label>Kayıtlı Alıcı Seç </label>
+                <select id="kayitliAliciSec" style="width:100%; padding:14px; border:2px solid #e0e0e0; border-radius:10px; font-size:15px;">
+                  <option value="">Seçiniz</option>
+                </select>
+              </div>
+
+              <div class="form-grup">
+                <label>Alıcı Hesap No</label>
+                <input type="text" id="transferAliciHesapNo" required placeholder="Örn: TR963 100200" />
+              </div>
+
+              <div class="form-grup">
+                <label>Alıcı Ad Soyad </label>
+                <input type="text" id="transferAliciAdSoyad" />
+              </div>
+
+              <div class="form-grup">
+                <label>Alıcıya Takma Ad  </label>
+                <input type="text" id="transferAliciLakap"  />
+              </div>
+
+              <div class="form-grup" style="display:flex; align-items:center; gap:10px;">
+                <input type="checkbox" id="transferAliciKaydet" style="width:18px; height:18px;" />
+                <label for="transferAliciKaydet" style="margin:0;">Bu alıcıyı kaydet</label>
+              </div>
+
+              <div class="form-grup">
+                <label>Transfer Tutarı (TL)</label>
+                <input type="number" id="transferTutar" required min="10" placeholder="Minimum 10 TL" />
+              </div>
+
+              <div class="form-grup">
+                <label>Açıklama </label>
+                <input type="text" id="transferAciklama" />
+              </div>
+
+              <button type="submit" class="onay-btn">Para Transferi</button>
+            </form>
+          </div>
+
+          <!-- هذا قسم "Ayarlar" (تحديث الحساب + إغلاق حساب) -->
+          <!-- Bu bölüm "Ayarlar" (hesap güncelleme + hesap kapatma) -->
+          <div id="hesapForm" class="islem-form">
+            <div class="form-grup">
+              <label>Ad Soyad</label>
+              <input type="text" id="yeniAdSoyad" placeholder="Yeni adınız" />
+            </div>
+            <div class="form-grup">
+              <label>Yeni Şifre</label>
+              <input type="password" id="yeniSifre" placeholder="Yeni şifreniz" />
+            </div>
+            <div class="form-grup">
+              <label>Şifre tekrarla</label>
+              <input type="password" id="yeniSifre" placeholder="Yeni şifreniz" />
+            </div>
+            <button onclick="hesapGuncelle()" class="onay-btn">Bilgileri Güncelle</button>
+            <br /><br />
+            <button onclick="hesapKapatModal()" class="onay-btn tehlikeli-btn">Hesabı Kapat</button>
+          </div>
+        </div>
+
+        <!-- جدول تاريخ العمليات -->
+        <!-- İşlem geçmişi tablosu -->
+        <div class="gecmis-tablo">
+          <div class="islem-baslik">İşlem Geçmişi</div>
+          <table class="tablo">
+            <thead>
+              <tr>
+                <th>Tarih</th>
+                <th>İşlem Tipi</th>
+                <th>Tutar</th>
+                <th>Açıklama</th>
+                <th>Kalan Bakiye</th>
+              </tr>
+            </thead>
+            <tbody id="islemTablosu"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- مودال تأكيد إغلاق الحساب -->
+  <!-- Hesap kapatma onay modalı -->
+  <div id="modalKapat" class="modal">
+    <div class="modal-icerik">
+      <div class="modal-baslik">Hesabı Kapat</div>
+      <div class="modal-metin">
+        Hesabınızı kalıcı olarak kapatmak istediğinizden emin misiniz?
+        Bu işlem geri alınamaz ve tüm verileriniz silinecektir.
+      </div>
+      <div class="modal-butonlar">
+        <button class="modal-btn iptal" onclick="modalKapat()">İptal</button>
+        <button class="modal-btn onayla" onclick="hesapKapat()">Hesabı Kapat</button>
+      </div>
+    </div>
+  </div>
+
+    <script>
+    /* هذا المتغير يحفظ المستخدم الحالي بعد تسجيل الدخول */
+    /* Bu değişken giriş yapan aktif kullanıcıyı tutar */
+    let aktifKullanici = null;
+
+    /* ====== ONLOAD ====== */
+    /* هذا الجزء يشتغل أول ما الصفحة تفتح: يتحقق من وجود مستخدم مسجل دخول ويحمّل البيانات */
+    /* Bu bölüm sayfa açılınca çalışır: aktif kullanıcı var mı kontrol eder ve verileri yükler */
+    window.onload = function () {
+      const kullaniciStr = localStorage.getItem('aktifKullanici');
+      if (!kullaniciStr) {
+        window.location.href = 'index.html';
+        return;
+      }
+      aktifKullanici = JSON.parse(kullaniciStr);
+      normalizeAllHesapNo(); // أضف هذا السطر 
+      sayfaYukle();
+    };
+
+    /* ====== SAYFA YÜKLE ====== */
+    /* هذا الجزء يعبّي اسم المستخدم ورقم الحساب في الواجهة ويستدعي تحديث الرصيد والعمليات */
+    /* Bu bölüm kullanıcı adı ve hesap no'yu ekrana yazar, bakiye ve işlemleri günceller */
+    function sayfaYukle() {
+      document.getElementById('kullaniciAdiTop').textContent = aktifKullanici.adSoyad;
+      document.getElementById('hesapNo').textContent = aktifKullanici.hesapNo;
+
+      document.getElementById('kullaniciAdiSidebar').textContent = aktifKullanici.adSoyad;
+      document.getElementById('hesapNoSidebar').textContent = aktifKullanici.hesapNo;
+
+      bakiyeGuncelle();
+      islemleriGoster();
+
+      /* ✅ جديد: تعبئة قائمة المستفيدين وربط onchange */
+      /* ✅ Yeni: kayıtlı alıcı listesini doldur ve onchange bağla */
+      kayitliAlicilariDoldur();
+      const select = document.getElementById("kayitliAliciSec");
+      if (select) {
+        select.onchange = kayitliAliciSecildi;
+      }
+    }
+
+    /* ====== BAKIYE ====== */
+    /* هذا الجزء يقرأ المستخدمين من LocalStorage ويجيب أحدث نسخة للمستخدم الحالي ويحسب الإجماليات */
+    /* Bu bölüm LocalStorage'dan kullanıcıları okur, aktif kullanıcıyı günceller ve toplamları hesaplar */
+    function bakiyeGuncelle() {
+      const kullanicilar = JSON.parse(localStorage.getItem('kullanicilar') || '[]');
+      const guncelKullanici = kullanicilar.find(k => k.id === aktifKullanici.id);
+
+      if (guncelKullanici) {
+        aktifKullanici = guncelKullanici;
+        localStorage.setItem('aktifKullanici', JSON.stringify(aktifKullanici));
+
+        document.getElementById('toplamBakiye').textContent = aktifKullanici.bakiye.toFixed(2) + ' ₺';
+
+        let toplamYatirilan = 0;
+        let toplamCekilen = 0;
+
+        /* هنا نحسب مجموع الإيداعات ومجموع السحوبات من سجل العمليات */
+        /* Burada işlem geçmişinden toplam yatırılan ve toplam çekilen hesaplanır */
+        aktifKullanici.islemler.forEach(islem => {
+          if (islem.tip === 'Para Yatırma' || islem.tip === 'Hesap Açılışı') {
+            toplamYatirilan += islem.tutar;
+          } else if (islem.tip === 'Para Çekme') {
+            toplamCekilen += islem.tutar;
+          }
+        });
+
+        document.getElementById('toplamYatirilan').textContent = toplamYatirilan.toFixed(2) + ' ₺';
+        document.getElementById('toplamCekilen').textContent = toplamCekilen.toFixed(2) + ' ₺';
+      }
+    }
+
+    /* ====== UI ====== */
+    /* هذا الجزء يبدّل بين نماذج العمليات (إيداع/سحب/تحويل/إعدادات) ويظهر النموذج المطلوب */
+    /* Bu bölüm işlem formları arasında geçiş yapar ve seçilen formu gösterir */
+    function islemSec(e, islem) {
+      document.querySelectorAll('.islem-btn').forEach(btn => btn.classList.remove('aktif'));
+      document.querySelectorAll('.islem-form').forEach(form => form.classList.remove('aktif'));
+
+      if (e && e.target) e.target.classList.add('aktif');
+      document.getElementById(islem + 'Form').classList.add('aktif');
+      mesajGoster('', '');
+    }
+
+    /* هذا الجزء يعرض رسالة نجاح/خطأ لمدة 5 ثواني ثم يخفيها */
+    /* Bu bölüm başarı/hata mesajını 5 saniye gösterir sonra gizler */
+    function mesajGoster(mesaj, tip) {
+      const mesajKutusu = document.getElementById('mesajKutusu');
+      if (mesaj) {
+        mesajKutusu.textContent = mesaj;
+        mesajKutusu.className = 'mesaj ' + tip;
+        mesajKutusu.style.display = 'block';
+        setTimeout(() => mesajKutusu.style.display = 'none', 5000);
+      } else {
+        mesajKutusu.style.display = 'none';
+      }
+    }
+
+    /* ====== PARA YATIR ====== */
+    /* هذا الجزء ينفذ عملية الإيداع: يتحقق من المبلغ، يحدّث الرصيد، يسجل العملية، ثم يحدث الواجهة */
+    /* Bu bölüm para yatırma işlemini yapar: tutarı kontrol eder, bakiye ve işlemleri günceller */
+    function paraYatir(event) {
+      event.preventDefault();
+
+      const tutar = parseFloat(document.getElementById('yatirmaTutar').value);
+      const aciklama = document.getElementById('yatirmaAciklama').value || 'Para yatırma';
+
+      if (tutar < 10) {
+        mesajGoster("Minimum yatırma tutarı 10 TL'dir!", 'hata');
+        return;
+      }
+
+      const kullanicilar = JSON.parse(localStorage.getItem('kullanicilar') || '[]');
+      const kullaniciIndex = kullanicilar.findIndex(k => k.id === aktifKullanici.id);
+
+      kullanicilar[kullaniciIndex].bakiye += tutar;
+      kullanicilar[kullaniciIndex].islemler.push({
+        tip: 'Para Yatırma',
+        tutar: tutar,
+        tarih: new Date().toISOString(),
+        aciklama: aciklama
+      });
+
+      localStorage.setItem('kullanicilar', JSON.stringify(kullanicilar));
+      aktifKullanici = kullanicilar[kullaniciIndex];
+      localStorage.setItem('aktifKullanici', JSON.stringify(aktifKullanici));
+
+      bakiyeGuncelle();
+      islemleriGoster();
+
+      document.getElementById('yatirmaTutar').value = '';
+      document.getElementById('yatirmaAciklama').value = '';
+
+      mesajGoster(`${tutar.toFixed(2)} ₺ başarıyla yatırıldı!`, 'basarili');
+    }
+
+    /* ====== PARA CEK ====== */
+    /* هذا الجزء ينفذ عملية السحب: يتحقق من الحد الأدنى ومن كفاية الرصيد، يسجل العملية ويحدث الواجهة */
+    /* Bu bölüm para çekme işlemini yapar: limit ve bakiye kontrol eder, işlemi kaydeder */
+    function paraCek(event) {
+      event.preventDefault();
+
+      const tutar = parseFloat(document.getElementById('cekmeTutar').value);
+      const aciklama = document.getElementById('cekmeAciklama').value || 'Para çekme';
+
+      if (tutar < 10) {
+        mesajGoster("Minimum çekme tutarı 10 TL'dir!", 'hata');
+        return;
+      }
+
+      if (tutar > aktifKullanici.bakiye) {
+        mesajGoster('Yetersiz bakiye! Mevcut bakiyeniz: ' + aktifKullanici.bakiye.toFixed(2) + ' ₺', 'hata');
+        return;
+      }
+
+      const kullanicilar = JSON.parse(localStorage.getItem('kullanicilar') || '[]');
+      const kullaniciIndex = kullanicilar.findIndex(k => k.id === aktifKullanici.id);
+
+      kullanicilar[kullaniciIndex].bakiye -= tutar;
+      kullanicilar[kullaniciIndex].islemler.push({
+        tip: 'Para Çekme',
+        tutar: tutar,
+        tarih: new Date().toISOString(),
+        aciklama: aciklama
+      });
+
+      localStorage.setItem('kullanicilar', JSON.stringify(kullanicilar));
+      aktifKullanici = kullanicilar[kullaniciIndex];
+      localStorage.setItem('aktifKullanici', JSON.stringify(aktifKullanici));
+
+      bakiyeGuncelle();
+      islemleriGoster();
+
+      document.getElementById('cekmeTutar').value = '';
+      document.getElementById('cekmeAciklama').value = '';
+
+      mesajGoster(`${tutar.toFixed(2)} ₺ başarıyla çekildi!`, 'basarili');
+    }
+
+    /* ====== HESAP GUNCELLE ====== */
+    /* هذا الجزء يحدّث معلومات الحساب (الاسم/كلمة المرور) إذا كان المستخدم أدخل أي شيء */
+    /* Bu bölüm hesap bilgilerini günceller (ad/şifre) kullanıcı bir şey girdiyse */
+    function hesapGuncelle() {
+      const yeniAd = document.getElementById('yeniAdSoyad').value;
+      const yeniSifre = document.getElementById('yeniSifre').value;
+
+      if (!yeniAd && !yeniSifre) {
+        mesajGoster('Güncellenecek bilgi girmediniz!', 'hata');
+        return;
+      }
+
+      const kullanicilar = JSON.parse(localStorage.getItem('kullanicilar') || '[]');
+      const kullaniciIndex = kullanicilar.findIndex(k => k.id === aktifKullanici.id);
+
+      if (yeniAd) kullanicilar[kullaniciIndex].adSoyad = yeniAd;
+      if (yeniSifre) kullanicilar[kullaniciIndex].sifre = yeniSifre;
+
+      localStorage.setItem('kullanicilar', JSON.stringify(kullanicilar));
+      aktifKullanici = kullanicilar[kullaniciIndex];
+      localStorage.setItem('aktifKullanici', JSON.stringify(aktifKullanici));
+
+      sayfaYukle();
+      document.getElementById('yeniAdSoyad').value = '';
+      document.getElementById('yeniSifre').value = '';
+      mesajGoster('Hesap bilgileriniz başarıyla güncellendi!', 'basarili');
+    }
+
+    /* ====== HESAP KAPAT ====== */
+    /* هذا الجزء يفتح/يغلق نافذة التأكيد (Modal) */
+    /* Bu bölüm onay modalını açar/kapatır */
+    function hesapKapatModal() { document.getElementById('modalKapat').classList.add('aktif'); }
+    function modalKapat() { document.getElementById('modalKapat').classList.remove('aktif'); }
+
+    /* هذا الجزء يحذف الحساب نهائيًا من LocalStorage ثم يوجه لصفحة الدخول */
+    /* Bu bölüm hesabı LocalStorage'dan kalıcı siler ve giriş sayfasına yönlendirir */
+    function hesapKapat() {
+      const kullanicilar = JSON.parse(localStorage.getItem('kullanicilar') || '[]');
+      const yeniListe = kullanicilar.filter(k => k.id !== aktifKullanici.id);
+
+      localStorage.setItem('kullanicilar', JSON.stringify(yeniListe));
+      localStorage.removeItem('aktifKullanici');
+
+      alert('Hesabınız başarıyla kapatıldı. Ana sayfaya yönlendiriliyorsunuz.');
+      window.location.href = 'index.html';
+    }
+
+    /* ====== ISLEM GECMISI ====== */
+    /* هذا الجزء يعرض جدول العمليات: يجهز التاريخ، يحدد نوع العملية (+/-)، ويحسب الرصيد المتبقي لكل سطر */
+    /* Bu bölüm işlem geçmişi tablosunu gösterir: tarih formatlar, +/- belirler, kalan bakiye hesaplar */
+    function islemleriGoster() {
+      const tbody = document.getElementById('islemTablosu');
+      tbody.innerHTML = '';
+
+      const islemler = [...aktifKullanici.islemler].reverse();
+      let kalanBakiye = aktifKullanici.bakiye;
+
+      for (let i = islemler.length - 1; i >= 0; i--) {
+        const islem = islemler[i];
+        const tr = document.createElement('tr');
+
+        const tarih = new Date(islem.tarih);
+        const tarihStr = tarih.toLocaleDateString('tr-TR') + ' ' +
+          tarih.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+
+        const isCikis = (islem.tip === 'Para Çekme' || islem.tip === 'Para Transferi (Gönder)');
+        const tutarClass = isCikis ? 'cekme' : 'yatirma';
+        const tutarPrefix = isCikis ? '-' : '+';
+
+        tr.innerHTML = `
+          <td>${tarihStr}</td>
+          <td>${islem.tip}</td>
+          <td class="${tutarClass}">${tutarPrefix}${islem.tutar.toFixed(2)} ₺</td>
+          <td>${islem.aciklama}</td>
+          <td>${kalanBakiye.toFixed(2)} ₺</td>
+        `;
+
+        tbody.appendChild(tr);
+
+        if (isCikis) kalanBakiye += islem.tutar;
+        else kalanBakiye -= islem.tutar;
+      }
+    }
+
+    /* ====== CIKIS ====== */
+    /* هذا الجزء يسجل خروج المستخدم (يحذف aktifKullanici من LocalStorage) */
+    /* Bu bölüm kullanıcı çıkışı yapar (aktifKullanici LocalStorage'dan silinir) */
+    function cikisYap() {
+      if (confirm('Çıkış yapmak istediğinizden emin misiniz?')) {
+        localStorage.removeItem('aktifKullanici');
+        window.location.href = 'index.html';
+      }
+    }
+
+    /* ====== SIDEBAR ====== */
+    /* هذا الجزء يفتح صفحة الإعدادات ويرجع لأعلى الصفحة */
+    /* Bu bölüm ayarlar sayfasını açar ve sayfanın başına çıkar */
+    function openSettingsFromSidebar() { window.location.href = 'ayarlar.html'; }
+    function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+
+    /* هذا الجزء يبدّل وضع السايدبار بين مفتوح/مغلق عبر classList */
+    /* Bu bölüm sidebar'ı open/closed yapmak için classList toggle kullanır */
+    function toggleSidebar() {
+      document.querySelector('.sidebar').classList.toggle('closed');
+      document.querySelector('.main').classList.toggle('closed');
+    }
+
+    /* =========================================================
+       ✅ KAYITLI ALICILAR (YENİ EKLENECEK KISIM)
+    ========================================================= */
+
+    /* هذا الجزء يجلب قائمة المستفيدين المحفوظة للمستخدم الحالي من LocalStorage */
+    /* Bu bölüm aktif kullanıcıya ait kayıtlı alıcı listesini LocalStorage'dan getirir */
+    function getKayitliAlicilar() {
+      const key = `kayitliAlicilar_${aktifKullanici.id}`;
+      return JSON.parse(localStorage.getItem(key) || "[]");
+    }
+
+    /* هذا الجزء يحفظ/يحدث قائمة المستفيدين للمستخدم الحالي في LocalStorage */
+    /* Bu bölüm aktif kullanıcıya ait kayıtlı alıcı listesini LocalStorage'a kaydeder */
+    function setKayitliAlicilar(liste) {
+      const key = `kayitliAlicilar_${aktifKullanici.id}`;
+      localStorage.setItem(key, JSON.stringify(liste));
+    }
+
+    /* هذا الجزء يملأ select بقائمة المستفيدين (lakap + hesapNo) */
+    /* Bu bölüm select alanını kayıtlı alıcılarla doldurur (lakap + hesapNo) */
+    function kayitliAlicilariDoldur() {
+      const select = document.getElementById("kayitliAliciSec");
+      if (!select) return;
+
+      select.innerHTML = `<option value="">— Seçiniz —</option>`;
+
+      const liste = getKayitliAlicilar();
+      liste.forEach((a, idx) => {
+        const opt = document.createElement("option");
+        opt.value = String(idx);
+        const lakapText = a.lakap ? a.lakap : "(Lakap Yok)";
+        opt.textContent = `${lakapText} - ${a.hesapNo}`;
+        select.appendChild(opt);
+      });
+    }
+
+    /* هذا الجزء ينفذ عند اختيار مستفيد من القائمة: يعبّي حقول التحويل تلقائيًا */
+    /* Bu bölüm listeden alıcı seçilince çalışır: transfer alanlarını otomatik doldurur */
+    function kayitliAliciSecildi() {
+      const select = document.getElementById("kayitliAliciSec");
+      const idxStr = select.value;
+      if (!idxStr) return;
+
+      const idx = parseInt(idxStr, 10);
+      const liste = getKayitliAlicilar();
+      const secilen = liste[idx];
+      if (!secilen) return;
+
+      document.getElementById("transferAliciHesapNo").value = secilen.hesapNo || "";
+      document.getElementById("transferAliciAdSoyad").value = secilen.adSoyad || "";
+      document.getElementById("transferAliciLakap").value = secilen.lakap || "";
+
+      document.getElementById("transferAliciKaydet").checked = false;
+    }
+
+    /* ====== PARA TRANSFERI (مع الإضافات فقط) ====== */
+    /* هذا الجزء ينفذ التحويل: تحقق من البيانات، خصم من المرسل، إضافة للمستقبل، تسجيل العمليتين، وحفظ المستفيد إذا تم اختيار ذلك */
+    /* Bu bölüm transfer yapar: kontrol, gönderenden düş, alıcıya ekle, işlemleri kaydet, istenirse alıcıyı kaydet */
+    function paraTransferi(event) {
+      event.preventDefault();
+
+     const aliciHesapNoRaw = document.getElementById('transferAliciHesapNo').value.trim();
+     const aliciHesapNo = prefix963(aliciHesapNoRaw);
+      const tutar = parseFloat(document.getElementById('transferTutar').value);
+      const aciklama = document.getElementById('transferAciklama').value.trim() || 'Para transferi';
+
+      /* ✅ جديد */
+      /* ✅ Yeni */
+      const aliciAdSoyad = document.getElementById('transferAliciAdSoyad').value.trim();
+      const aliciLakap = document.getElementById('transferAliciLakap').value.trim();
+      const kaydet = document.getElementById('transferAliciKaydet').checked;
+
+      if (!aliciHesapNo) {
+        mesajGoster('Alıcı hesap numarası giriniz!', 'hata');
+        return;
+      }
+
+      if (aliciHesapNo === String(aktifKullanici.hesapNo)) {
+        mesajGoster('Kendi hesabınıza transfer yapamazsınız!', 'hata');
+        return;
+      }
+
+      /* ✅ جديد: شرط اللقب عند الحفظ */
+      /* ✅ Yeni: kaydetmek için lakap şartı */
+      if (kaydet && !aliciLakap) {
+        mesajGoster('Kaydetmek için lakap giriniz!', 'hata');
+        return;
+      }
+
+      if (isNaN(tutar) || tutar < 10) {
+        mesajGoster("Minimum transfer tutarı 10 TL'dir!", 'hata');
+        return;
+      }
+
+      if (tutar > aktifKullanici.bakiye) {
+        mesajGoster('Yetersiz bakiye! Mevcut bakiyeniz: ' + aktifKullanici.bakiye.toFixed(2) + ' ₺', 'hata');
+        return;
+      }
+
+      const kullanicilar = JSON.parse(localStorage.getItem('kullanicilar') || '[]');
+
+      const gonderenIndex = kullanicilar.findIndex(k => k.id === aktifKullanici.id);
+      const aliciIndex = kullanicilar.findIndex(k => String(k.hesapNo) === aliciHesapNo);
+
+      if (aliciIndex === -1) {
+        mesajGoster('Alıcı hesap bulunamadı!', 'hata');
+        return;
+      }
+
+      // 1) Gönderen
+      kullanicilar[gonderenIndex].bakiye -= tutar;
+      kullanicilar[gonderenIndex].islemler.push({
+        tip: 'Para Transferi (Gönder)',
+        tutar: tutar,
+        tarih: new Date().toISOString(),
+        aciklama: `Alıcı: ${aliciHesapNo} - ${aciklama}`
+      });
+
+      // 2) Alıcı
+      const gonderenHesapNo = String(kullanicilar[gonderenIndex].hesapNo);
+      kullanicilar[aliciIndex].bakiye += tutar;
+      kullanicilar[aliciIndex].islemler.push({
+        tip: 'Para Transferi (Al)',
+        tutar: tutar,
+        tarih: new Date().toISOString(),
+        aciklama: `Gönderen: ${gonderenHesapNo} - ${aciklama}`
+      });
+
+      localStorage.setItem('kullanicilar', JSON.stringify(kullanicilar));
+
+      aktifKullanici = kullanicilar[gonderenIndex];
+      localStorage.setItem('aktifKullanici', JSON.stringify(aktifKullanici));
+
+      /* ✅ جديد: حفظ المستفيد */
+      /* ✅ Yeni: alıcıyı kaydet */
+      if (kaydet) {
+        const liste = getKayitliAlicilar();
+        const mevcutIndex = liste.findIndex(x => String(x.hesapNo) === String(aliciHesapNo));
+
+        const yeniKayit = {
+          hesapNo: String(aliciHesapNo),
+          adSoyad: aliciAdSoyad,
+          lakap: aliciLakap
+        };
+
+        if (mevcutIndex !== -1) liste[mevcutIndex] = yeniKayit;
+        else liste.push(yeniKayit);
+
+        setKayitliAlicilar(liste);
+        kayitliAlicilariDoldur();
+      }
+
+      bakiyeGuncelle();
+      islemleriGoster();
+
+      // temizle (نفس تبعك + جديد)
+      document.getElementById('transferAliciHesapNo').value = '';
+      document.getElementById('transferTutar').value = '';
+      document.getElementById('transferAciklama').value = '';
+
+      /* ✅ جديد تنظيف */
+      /* ✅ Yeni temizleme */
+      document.getElementById('transferAliciAdSoyad').value = '';
+      document.getElementById('transferAliciLakap').value = '';
+      document.getElementById('transferAliciKaydet').checked = false;
+      document.getElementById('kayitliAliciSec').value = '';
+
+      mesajGoster(`${tutar.toFixed(2)} ₺ başarıyla transfer edildi!`, 'basarili');
+    }
+
+
+
+    //9633333
+    
+// رقم حساب موحّد يبدأ بـ 963
+function prefix963(no) {
+  let s = String(no ?? "").trim();
+
+  if (!s) return "TR963";
+
+  // احذف أي "TR" في البداية (حتى لو مكررة)
+  s = s.replace(/^(TR)+/i, "");
+
+  // احذف أي "963" في البداية (حتى لو مكررة)
+  s = s.replace(/^963+/,"");
+
+  // احذف أي فراغات
+  s = s.replace(/\s+/g, "");
+
+  // رجّعها بشكل ثابت: TR963 + الباقي
+  return "TR963" + s;
+}
+
+
+
+
+// LocalStorage içindeki tüm kullanıcıların hesapNo'larını 963 ile başlat
+function normalizeAllHesapNo() {
+  const kullanicilar = JSON.parse(localStorage.getItem("kullanicilar") || "[]");
+  let degisti = false;
+
+  kullanicilar.forEach(k => {
+    const once = String(k.hesapNo ?? "");
+    const sonra = prefix963(once);
+    if (once !== sonra) { k.hesapNo = sonra; degisti = true; }
+  });
+
+  if (degisti) localStorage.setItem("kullanicilar", JSON.stringify(kullanicilar));
+
+  // aktif kullanıcıyı da güncelle
+  const aktifStr = localStorage.getItem("aktifKullanici");
+  if (aktifStr) {
+    const ak = JSON.parse(aktifStr);
+    const once = String(ak.hesapNo ?? "");
+    const sonra = prefix963(once);
+    if (once !== sonra) {
+      ak.hesapNo = sonra;
+      localStorage.setItem("aktifKullanici", JSON.stringify(ak));
+    }
+  }
+
+  // kayıtlı alıcı listesindeki hesapNo'ları da normalize et
+  if (typeof aktifKullanici !== "undefined" && aktifKullanici && aktifKullanici.id != null) {
+    const key = `kayitliAlicilar_${aktifKullanici.id}`;
+    const liste = JSON.parse(localStorage.getItem(key) || "[]");
+    let degisti2 = false;
+
+    liste.forEach(a => {
+      const once = String(a.hesapNo ?? "");
+      const sonra = prefix963(once);
+      if (once !== sonra) { a.hesapNo = sonra; degisti2 = true; }
+    });
+
+    if (degisti2) localStorage.setItem(key, JSON.stringify(liste));
+  }
+}
+
+// Input alanında otomatik 963 ile başlat (kullanıcı silse bile geri koyar)
+function ensure963Input(el) {
+  if (!el) return;
+  const val = String(el.value ?? "").trim();
+  if (!val) { el.value = "963"; return; }
+  if (!val.startsWith("963")) el.value = "963" + val;
+}
+
+/* ✅ sayfaYukle çalışınca otomatik bağla + ekranda da 963 göster */
+(function attach963Handlers() {
+  const _oldSayfaYukle = window.sayfaYukle;
+  window.sayfaYukle = function () {
+    _oldSayfaYukle();
+
+    // ekranda görünen hesap no'lar 963 ile başlasın (üstüne yazar, satır değiştirme yok)
+    const hNo = prefix963(aktifKullanici?.hesapNo);
+    const h1 = document.getElementById("hesapNo");
+    const h2 = document.getElementById("hesapNoSidebar");
+    if (h1) h1.textContent = hNo;
+    if (h2) h2.textContent = hNo;
+
+    // transfer inputuna otomatik uygula
+    const input = document.getElementById("transferAliciHesapNo");
+    if (input) {
+     // input.addEventListener("input", () => ensure963Input(input));
+     // input.addEventListener("blur", () => ensure963Input(input));
+      // boşsa ilk defa da 963 koy
+      //if (!String(input.value || "").trim()) input.value = "963";
+    }
+  };
+})();
+
+  </script>
+</body>
+</html>
