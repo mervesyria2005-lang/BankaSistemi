@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ayarlar - Banka Yönetim Sistemi</title>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f7fa;
+      min-height: 100vh;
+    }
+
+
+    .app { display: flex; min-height: 100vh; }
+
+    .sidebar {
+      width: 280px;
+      background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      padding: 18px 14px;
+      position: fixed;
+      left: 0; top: 0; bottom: 0;
+      overflow-y: auto;
+      border-right: 1px solid rgba(255,255,255,0.08);
+      transition: width 0.35s ease;
+    }
+
+    .sb-title { font-weight: 800; font-size: 16px; margin-bottom: 16px; opacity: 0.95; }
+    .sb-section { margin-top: 10px; opacity: 0.9; font-size: 13px; padding: 8px 10px; }
+
+    .sb-item {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      border: 0;
+      background: transparent;
+      color: #fff;
+      font-size: 14px;
+      text-align: left;
+      transition: 0.2s;
+    }
+    .sb-item:hover { background: rgba(255,255,255,0.08); }
+    .sb-item.active { background: rgba(255,255,255,0.12); }
+
+    .sb-divider { height: 1px; background: rgba(255,255,255,0.08); margin: 12px 0; }
+
+    .sb-user {
+      position: absolute;
+      left: 14px; right: 14px; bottom: 14px;
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .sb-user .name { font-weight: 800; margin-bottom: 8px; font-size: 14px; opacity: 0.95; }
+    .sb-user .mini { font-size: 12px; opacity: 0.75; }
+
+    .sb-user .logout {
+      margin-top: 10px;
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      cursor: pointer;
+      font-weight: 800;
+      transition: 0.2s;
+    }
+    .sb-user .logout:hover { background: rgba(255,255,255,0.14); }
+
+    .sidebar.closed { width: 70px; padding: 18px 10px; overflow: hidden; }
+    .sidebar.closed .sb-title,
+    .sidebar.closed .sb-section,
+    .sidebar.closed .sb-divider,
+    .sidebar.closed .sb-user,
+    .sidebar.closed .sb-item:not(.toggle-btn){ display: none !important; }
+
+    .sidebar .toggle-btn{
+      width: 48px; height: 48px;
+      justify-content: center;
+      border-radius: 12px;
+      margin: 6px auto 0 auto;
+      display: flex; align-items: center;
+      font-size: 20px;
+    }
+
+    .main {
+      margin-left: 280px;
+      width: calc(100% - 280px);
+      min-height: 100vh;
+      transition: margin-left 0.35s ease, width 0.35s ease;
+    }
+    .main.closed { margin-left: 70px; width: calc(100% - 70px); }
+
+    .navbar {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      font-weight: 800;
+    }
+    .navbar h1 { font-size: 24px; font-weight: 800; }
+
+    .container {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    .panel {
+      background: white;
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+    }
+
+    .panel h2 { font-size: 20px; color: #333; margin-bottom: 10px; }
+    .panel p, .panel li { color: #555; line-height: 1.7; }
+
+    .btn {
+      margin-top: 12px;
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar { position: static; width: 100%; height: auto; }
+      .sb-user { position: static; margin-top: 12px; }
+      .main { margin-left: 0; width: 100%; }
+      .navbar { padding: 15px 20px; }
+    }
+
+
+    .geri-link {
+  background: none;
+  border: none;
+  color: #7b1e1e;           /* نفس لون الصورة */
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 10px 0;
+}
+
+.geri-link:hover {
+  opacity: 0.8;
+}
+
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <aside class="sidebar closed">
+      <div class="sb-title">Banka Yönetim Sistemi</div>
+
+      <button class="sb-item toggle-btn" onclick="toggleSidebar()" title="Menü" type="button">☰</button>
+
+      <div class="sb-section">Menü</div>
+
+      <button class="sb-item" type="button" onclick="goHesap()">
+        Hesabım
+      </button>
+
+      <button class="sb-item active" type="button">
+        Ayarlar
+      </button>
+
+      <div class="sb-divider"></div>
+
+      <div class="sb-user">
+        <div class="name">👤 <span id="kullaniciAdiSidebar">Kullanıcı</span></div>
+        <div class="mini">Hesap No: <span id="hesapNoSidebar">—</span></div>
+        <button class="logout" type="button" onclick="cikisYap()">Çıkış Yap!</button>
+      </div>
+    </aside>
+
+    <main class="main closed">
+      <div class="navbar">
+        <h1>Ayarlar</h1>
+        <div style="opacity:0.9;font-weight:500;">
+          Hoş Geldiniz <span id="kullaniciAdiTop">...</span>
+        </div>
+      </div>
+
+      <div class="container">
+        <div class="panel">
+<!--لتعليمات / شرح / قواعد النظام تكتبيهم. هوني-->
+          <h2>Kullanım Talimatları</h2>
+          <h3>Para Yatırma</h3>
+<ul>
+  <li>Minimum tutar 10 TL’dir.</li>
+  <li>İşlem sonrası bakiye artar.</li>
+</ul>
+
+<h3>Para Çekme</h3>
+<ul>
+  <li>Minimum tutar 10 TL’dir.</li>
+  <li>Yetersiz bakiye varsa işlem yapılmaz.</li>
+</ul>
+
+<h3>Para Transferi</h3>
+<ul>
+  <li>Alıcı hesap numarası doğru olmalıdır.</li>
+  <li>Açıklama alanı isteğe bağlıdır.</li>
+</ul>
+
+        </div>
+
+       <div class="panel">
+  <h2>Hesap Bilgileri</h2>
+
+  <!-- Ad Soyad Değiştir -->
+  <div style="margin-bottom:20px;">
+    <label style="font-weight:700;">Ad Soyad</label>
+    <input
+      type="text"
+      id="yeniAdSoyad"
+      placeholder="Yeni ad soyad"
+      style="width:100%;padding:12px;border-radius:8px;border:1px solid #ddd;margin-top:6px;"
+    />
+  </div>
+       <div style="margin-bottom:20px;">
+  <label style="font-weight:700;">Eski Şifre</label>
+  <input
+    type="password"
+    id="eskiSifre"
+    placeholder="Mevcut şifreniz"
+    style="width:100%;padding:12px;border-radius:8px;border:1px solid #ddd;margin-top:6px;"
+  />
+</div>
+
+
+  <!-- Şifre Değiştir -->
+  <div style="margin-bottom:20px;">
+    <label style="font-weight:700;">Yeni Şifre</label>
+    <input
+      type="password"
+      id="yeniSifre"
+      placeholder="Yeni şifre"
+      style="width:100%;padding:12px;border-radius:8px;border:1px solid #ddd;margin-top:6px;"
+    />
+  </div>
+
+  <div style="margin-bottom:20px;">
+    <label style="font-weight:700;">yeni şifre tekrarla </label>
+    <input
+      type="password"
+      id="yeniSifre"
+      placeholder="Yeni şifre"
+      style="width:100%;padding:12px;border-radius:8px;border:1px solid #ddd;margin-top:6px;"
+    />
+  </div>
+
+  <button class="btn" onclick="hesapBilgileriniGuncelle()">
+    Bilgileri Güncelle
+  </button>
+
+  <hr style="margin:25px 0;opacity:0.3;">
+<!--هوني رجعني لحسابي-->
+  <button class="geri-link" onclick="goHesap()">
+  ← Ana Sayfaya Dön
+</button>
+
+
+
+  <script>
+    let aktifKullanici = null;
+
+    window.onload = function () {
+      const kullaniciStr = localStorage.getItem('aktifKullanici');
+      if (!kullaniciStr) {
+        window.location.href = 'index.html';
+        return;
+      }
+      aktifKullanici = JSON.parse(kullaniciStr);
+
+      document.getElementById('kullaniciAdiTop').textContent = aktifKullanici.adSoyad;
+      document.getElementById('kullaniciAdiSidebar').textContent = aktifKullanici.adSoyad;
+      document.getElementById('hesapNoSidebar').textContent = aktifKullanici.hesapNo;
+    };
+
+    function goHesap() {
+      window.location.href = 'hesap.html';
+    }
+
+    function cikisYap() {
+      if (confirm('Çıkış yapmak istediğinizden emin misiniz?')) {
+        localStorage.removeItem('aktifKullanici');
+        window.location.href = 'index.html';
+      }
+    }
+
+    function toggleSidebar() {
+      document.querySelector('.sidebar').classList.toggle('closed');
+      document.querySelector('.main').classList.toggle('closed');
+    }
+    function hesapBilgileriniGuncelle() {
+  const yeniAd = document.getElementById('yeniAdSoyad').value.trim();
+  const yeniSifre = document.getElementById('yeniSifre').value.trim();
+
+  if (!yeniAd && !yeniSifre) {
+    alert('Lütfen güncellemek için en az bir alan doldurun.');
+    return;
+  }
+
+  const kullanicilar = JSON.parse(localStorage.getItem('kullanicilar') || '[]');
+  const aktifKullanici = JSON.parse(localStorage.getItem('aktifKullanici'));
+
+  const index = kullanicilar.findIndex(k => k.id === aktifKullanici.id);
+
+  if (index === -1) {
+    alert('Kullanıcı bulunamadı!');
+    return;
+  }
+
+  if (yeniAd) {
+    kullanicilar[index].adSoyad = yeniAd;
+    aktifKullanici.adSoyad = yeniAd;
+  }
+
+  if (yeniSifre) {
+    if (yeniSifre.length < 6) {
+      alert('Şifre en az 6 karakter olmalıdır.');
+      return;
+    }
+    kullanicilar[index].sifre = yeniSifre;
+  }
+
+  localStorage.setItem('kullanicilar', JSON.stringify(kullanicilar));
+  localStorage.setItem('aktifKullanici', JSON.stringify(aktifKullanici));
+
+  alert('Hesap bilgileriniz başarıyla güncellendi.');
+
+  document.getElementById('yeniAdSoyad').value = '';
+  document.getElementById('yeniSifre').value = '';
+}
+
+  </script>
+</body>
+</html>
